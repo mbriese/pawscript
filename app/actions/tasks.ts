@@ -12,6 +12,7 @@ import {
   type FormState,
 } from "@/lib/validation";
 import { isProfane } from "@/lib/moderation";
+import { logModerationFlag } from "@/lib/admin";
 import type { TaskCategory, TaskSubject } from "@/lib/types";
 
 export async function createTask(formData: FormData): Promise<FormState> {
@@ -28,6 +29,12 @@ export async function createTask(formData: FormData): Promise<FormState> {
   if (!parsed.success) return { error: firstIssue(parsed.error) };
 
   if (isProfane(parsed.data.title)) {
+    await logModerationFlag({
+      userId: user.id,
+      userEmail: user.email ?? null,
+      field: "task_title",
+      originalText: parsed.data.title,
+    });
     return { error: "Please remove inappropriate language from the task title." };
   }
 
@@ -62,8 +69,18 @@ export async function completeTask(formData: FormData): Promise<void> {
     pet_id: formData.get("pet_id") ?? "",
     note: formData.get("note") ?? "",
   });
-  // Invalid input or profane note: reject silently (no note UI to surface it).
-  if (!parsed.success || isProfane(parsed.data.note)) return;
+  // Invalid input: reject silently (no note UI to surface it).
+  if (!parsed.success) return;
+  // Profane note: log for admin review, then reject silently.
+  if (isProfane(parsed.data.note)) {
+    await logModerationFlag({
+      userId: user.id,
+      userEmail: user.email ?? null,
+      field: "task_note",
+      originalText: parsed.data.note ?? "",
+    });
+    return;
+  }
 
   const { error } = await supabase.rpc("complete_task", {
     p_task_id: parsed.data.task_id,

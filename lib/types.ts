@@ -71,6 +71,89 @@ export interface UserBadge {
   earned_at: string;
 }
 
+export type UserRole = "user" | "admin";
+
+export interface Profile {
+  id: string;
+  email: string | null;
+  role: UserRole;
+  created_at: string;
+}
+
+export type NotificationChannel = "email" | "sms" | "both" | "off";
+export type NotificationCategory = "reports" | "task_reminders" | "alerts";
+export type NotificationDeliveryChannel = "email" | "sms";
+export type NotificationStatus = "sent" | "skipped" | "failed";
+
+export interface NotificationPreferences {
+  user_id: string;
+  reports: NotificationChannel;
+  task_reminders: NotificationChannel;
+  alerts: NotificationChannel;
+  updated_at: string;
+}
+
+export interface UserContact {
+  user_id: string;
+  notify_email: string | null;
+  phone: string | null;
+  phone_verified: boolean;
+  phone_otp: string | null;
+  phone_otp_expires_at: string | null;
+  updated_at: string;
+}
+
+export interface NotificationLog {
+  id: string;
+  user_id: string | null;
+  channel: NotificationDeliveryChannel;
+  category: string;
+  to_address: string | null;
+  subject: string | null;
+  body: string | null;
+  status: NotificationStatus;
+  detail: string | null;
+  created_at: string;
+}
+
+export const NOTIFICATION_CATEGORIES: NotificationCategory[] = [
+  "reports",
+  "task_reminders",
+  "alerts",
+];
+
+export const NOTIFICATION_CATEGORY_META: Record<
+  NotificationCategory,
+  { label: string; description: string }
+> = {
+  reports: {
+    label: "Status reports",
+    description: "When your pet files a status report.",
+  },
+  task_reminders: {
+    label: "Task reminders",
+    description: "When care tasks become overdue.",
+  },
+  alerts: {
+    label: "Alerts & dispatches",
+    description: "Nemesis dispatches and praise from your pet.",
+  },
+};
+
+export type ModerationStatus = "open" | "reviewed";
+
+export interface ModerationFlag {
+  id: string;
+  user_id: string | null;
+  user_email: string | null;
+  field: string;
+  original_text: string;
+  status: ModerationStatus;
+  created_at: string;
+  reviewed_at: string | null;
+  reviewed_by: string | null;
+}
+
 export interface TaskWithPet extends Task {
   pet: Pick<Pet, "id" | "name" | "avatar_emoji"> | null;
 }

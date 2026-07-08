@@ -142,6 +142,44 @@ Set globally in `next.config.ts`:
 - Optionally tune **JWT expiry / session timeout** and enable **MFA** under Authentication settings.
 - For accurate per-IP lockout behind a proxy/CDN, ensure `x-forwarded-for` is forwarded.
 
+## Notifications
+
+PawScript sends email + SMS notifications with per-user preferences. Delivery is **mocked by default** so it works locally with zero external accounts, and swaps to real providers when their env vars are present.
+
+### Categories & preferences
+Three categories, each set to `email` | `sms` | `both` | `off` from **/account → Notifications**:
+- **Status reports** (`reports`) — fires when a pet status report is generated.
+- **Task reminders** (`task_reminders`) — fires for overdue care tasks (default: `email`).
+- **Alerts & dispatches** (`alerts`) — fires on nemesis dispatches and praise.
+
+Defaults: `reports=off`, `task_reminders=email`, `alerts=off`. Preferences live in `notification_preferences` (RLS: user-owned).
+
+### Contact info & phone verification
+- **Notify email** (optional) overrides the login email; if blank, the login email is used (email is always resolvable).
+- **Phone** requires verification: a 6-digit code is generated, "sent" via the notification service (mock: logged as SMS and emailed to Mailpit), and confirmed on `/account`. Contact data (incl. `phone_verified` and the OTP) lives in `user_contacts` and is **only writable by the server** (service role), never the client.
+- If a category is `sms`/`both` but no **verified** phone exists, delivery **falls back to email** and the reason is recorded.
+
+### Mock vs. real drivers (`lib/notifications.ts`, server-only)
+- **Email** — with no provider env set, mail is delivered to the local **Mailpit** SMTP (`127.0.0.1:54325`) via `nodemailer` and appears at **http://127.0.0.1:54324**. Set `RESEND_API_KEY` (preferred) or `SENDGRID_API_KEY` to send real email; `NOTIFY_FROM` sets the sender.
+- **SMS** — a stub that logs to the server console. Set `TWILIO_ACCOUNT_SID` / `TWILIO_AUTH_TOKEN` / `TWILIO_FROM` to send real SMS via Twilio.
+- **Every attempt** (sent / skipped-because-off / failed / fallback) is written to the `notifications` table, so mock mode is fully visible in-app (recent items on `/account`, all items on `/admin`).
+
+> Enabling the Mailpit SMTP port required uncommenting `smtp_port = 54325` under `[local_smtp]` in `supabase/config.toml` (then `supabase stop && supabase start`).
+
+### Scheduled reminders
+- Endpoint: `POST /api/cron/reminders`, protected by `Authorization: Bearer $CRON_SECRET`. It scans all overdue tasks and notifies each owner per their prefs.
+- **Idempotency**: `tasks.last_reminded_at` is set after each reminder; a task is only re-notified once `next_due_at` advances past it (i.e. after it's completed and becomes due again), so repeated cron runs don't spam.
+- **Local scheduling choice**: the Postgres container can't reach the app's mock SMTP, so DB-driven `pg_cron`→HTTP is impractical locally. Instead:
+  - **Demo**: use the **Run reminders now** button on `/account` (runs for the signed-in user).
+  - **Real schedule**: run an external cron hitting the endpoint, e.g. a PowerShell scheduled task or a loop:
+    ```powershell
+    while ($true) {
+      curl.exe -s -X POST http://localhost:3000/api/cron/reminders -H "Authorization: Bearer $env:CRON_SECRET"
+      Start-Sleep -Seconds 300
+    }
+    ```
+  - `pg_cron`/`pg_net` are enabled (best-effort) by the migration; to drive it from the DB in a hosted setup, schedule a `net.http_post` to your deployed `/api/cron/reminders` URL with the bearer secret.
+
 ## Notes
 
 - The OpenAI key is only ever read inside server actions / route handlers. It is never sent to the client.

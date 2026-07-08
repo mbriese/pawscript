@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { firstIssue, idSchema, petSchema, type FormState } from "@/lib/validation";
-import { screenFields } from "@/lib/moderation";
+import { isProfane } from "@/lib/moderation";
+import { logModerationFlag } from "@/lib/admin";
 
 export async function createPet(
   _prevState: FormState,
@@ -25,9 +26,21 @@ export async function createPet(
 
   const { name, species, breed, avatar_emoji, personality } = parsed.data;
 
-  const offending = screenFields({ Name: name, Breed: breed, Personality: personality });
-  if (offending) {
-    return { error: `Please remove inappropriate language from the ${offending.toLowerCase()} field.` };
+  const profanityChecks: { field: string; label: string; value: string | null | undefined }[] = [
+    { field: "pet_name", label: "name", value: name },
+    { field: "pet_breed", label: "breed", value: breed },
+    { field: "pet_personality", label: "personality", value: personality },
+  ];
+  for (const check of profanityChecks) {
+    if (isProfane(check.value)) {
+      await logModerationFlag({
+        userId: user.id,
+        userEmail: user.email ?? null,
+        field: check.field,
+        originalText: check.value ?? "",
+      });
+      return { error: `Please remove inappropriate language from the ${check.label} field.` };
+    }
   }
 
   const { data, error } = await supabase

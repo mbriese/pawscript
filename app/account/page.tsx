@@ -2,6 +2,8 @@ import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { AccountMfa } from "./account-mfa";
+import { AccountNotifications, type NotificationSettings } from "./account-notifications";
+import type { NotificationChannel, NotificationLog } from "@/lib/types";
 
 export const metadata = { title: "Account · PawScript" };
 export const dynamic = "force-dynamic";
@@ -18,6 +20,36 @@ export default async function AccountPage() {
       friendlyName: f.friendly_name ?? null,
       status: f.status,
     }));
+
+  const [{ data: prefs }, { data: contact }, { data: recent }] = await Promise.all([
+    supabase
+      .from("notification_preferences")
+      .select("reports, task_reminders, alerts")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("user_contacts")
+      .select("notify_email, phone, phone_verified")
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  const notificationSettings: NotificationSettings = {
+    reports: (prefs?.reports as NotificationChannel) ?? "off",
+    task_reminders: (prefs?.task_reminders as NotificationChannel) ?? "email",
+    alerts: (prefs?.alerts as NotificationChannel) ?? "off",
+    notifyEmail: (contact?.notify_email as string | null) ?? "",
+    loginEmail: user.email ?? "",
+    phone: (contact?.phone as string | null) ?? "",
+    phoneVerified: Boolean(contact?.phone_verified),
+    recent: (recent ?? []) as NotificationLog[],
+  };
 
   return (
     <>
@@ -44,6 +76,17 @@ export default async function AccountPage() {
             Two-factor authentication
           </h2>
           <AccountMfa verifiedFactors={verifiedFactors} />
+        </section>
+
+        <section className="mb-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+          <h2 className="mb-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+            Notifications
+          </h2>
+          <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
+            Choose how PawScript reaches you. Delivery is mocked locally — emails
+            appear in Mailpit and every attempt is logged below.
+          </p>
+          <AccountNotifications settings={notificationSettings} />
         </section>
 
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">

@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { IdleTimeout } from "./idle-timeout";
+import { isCurrentUserAdmin } from "@/lib/admin";
 
-export function SiteHeader({ email }: { email?: string | null }) {
+export async function SiteHeader({ email }: { email?: string | null }) {
+  const showAdmin = email ? await isCurrentUserAdmin() : false;
+
   return (
     <header className="sticky top-0 z-10 border-b border-zinc-200/70 bg-white/80 backdrop-blur dark:border-zinc-800/70 dark:bg-zinc-950/70">
       {email ? <IdleTimeout /> : null}
@@ -23,6 +26,14 @@ export function SiteHeader({ email }: { email?: string | null }) {
           >
             Pets
           </Link>
+          {showAdmin ? (
+            <Link
+              href="/admin"
+              className="rounded-lg px-3 py-2 font-semibold text-amber-600 transition hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
+            >
+              Admin
+            </Link>
+          ) : null}
           {email ? (
             <>
               <Link

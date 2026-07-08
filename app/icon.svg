@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-label="PawScript paw">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fb923c"/>
+      <stop offset="1" stop-color="#f97316"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)"/>
+  <g fill="#ffffff">
+    <ellipse cx="32" cy="42" rx="13" ry="11.5"/>
+    <ellipse cx="15.5" cy="27" rx="5.5" ry="7.5"/>
+    <ellipse cx="26" cy="19" rx="5.5" ry="7.5"/>
+    <ellipse cx="38" cy="19" rx="5.5" ry="7.5"/>
+    <ellipse cx="48.5" cy="27" rx="5.5" ry="7.5"/>
+  </g>
+</svg>

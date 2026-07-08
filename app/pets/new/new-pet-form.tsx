@@ -1,11 +1,19 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createPet } from "@/app/actions/pets";
 import { SubmitButton } from "@/components/submit-button";
 import type { FormState } from "@/lib/validation";
+import {
+  SPECIES,
+  SPECIES_EMOJI,
+  DEFAULT_SPECIES,
+  speciesLabel,
+} from "@/lib/species";
 
-const EMOJI_CHOICES = ["🐱", "🐶", "🐰", "🐹", "🦎", "🐦", "🐢", "🐴", "🐾"];
+// Avatar choices are the per-species default emojis, so a species selection
+// always maps to an option that shows as selected (still user-overridable).
+const EMOJI_CHOICES = SPECIES.map((s) => SPECIES_EMOJI[s]);
 
 const PERSONALITY_PRESETS = [
   "A dry, bureaucratic house cat who narrates domestic life like a mid-level government auditor. Speaks in clipped official memos.",
@@ -19,6 +27,14 @@ const inputClass =
 
 export function NewPetForm() {
   const [state, action] = useActionState<FormState, FormData>(createPet, null);
+  const [species, setSpecies] = useState<string>(DEFAULT_SPECIES);
+  const [emoji, setEmoji] = useState<string>(SPECIES_EMOJI[DEFAULT_SPECIES]);
+
+  function handleSpeciesChange(next: string) {
+    setSpecies(next);
+    const preset = SPECIES_EMOJI[next as keyof typeof SPECIES_EMOJI];
+    if (preset) setEmoji(preset);
+  }
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -34,7 +50,19 @@ export function NewPetForm() {
           <label htmlFor="species" className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
             Species
           </label>
-          <input id="species" name="species" defaultValue="cat" maxLength={40} className={inputClass} />
+          <select
+            id="species"
+            name="species"
+            value={species}
+            onChange={(e) => handleSpeciesChange(e.target.value)}
+            className={inputClass}
+          >
+            {SPECIES.map((s) => (
+              <option key={s} value={s}>
+                {SPECIES_EMOJI[s]} {speciesLabel(s)}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="breed" className="text-sm font-medium text-zinc-600 dark:text-zinc-300">
@@ -49,15 +77,25 @@ export function NewPetForm() {
           Avatar
         </legend>
         <div className="flex flex-wrap gap-2">
-          {EMOJI_CHOICES.map((emoji, i) => (
-            <label key={emoji} className="cursor-pointer">
-              <input type="radio" name="avatar_emoji" value={emoji} defaultChecked={i === 0} className="peer sr-only" />
+          {EMOJI_CHOICES.map((choice) => (
+            <label key={choice} className="cursor-pointer">
+              <input
+                type="radio"
+                name="avatar_emoji"
+                value={choice}
+                checked={emoji === choice}
+                onChange={() => setEmoji(choice)}
+                className="peer sr-only"
+              />
               <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-300 text-2xl transition peer-checked:border-amber-500 peer-checked:bg-amber-50 dark:border-zinc-700 dark:peer-checked:bg-amber-950/40">
-                {emoji}
+                {choice}
               </span>
             </label>
           ))}
         </div>
+        <p className="text-xs text-zinc-400">
+          Auto-set from the species — pick another to override.
+        </p>
       </fieldset>
 
       <div className="flex flex-col gap-2">

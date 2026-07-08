@@ -11,7 +11,8 @@ import {
 } from "@/lib/ai";
 import { evaluateBadges } from "@/lib/badges";
 import { maskProfanity } from "@/lib/moderation";
-import type { Pet } from "@/lib/types";
+import { sendNotification } from "@/lib/notifications";
+import type { AlertKind, NotificationCategory, Pet } from "@/lib/types";
 
 async function loadPet(petId: string): Promise<Pet | null> {
   const supabase = await createClient();
@@ -60,23 +61,39 @@ async function buildContext(userId: string): Promise<PetContext> {
   };
 }
 
+// Reports notify under the "reports" category; nemesis + praise are "alerts".
+function categoryForKind(kind: AlertKind): NotificationCategory {
+  return kind === "report" ? "reports" : "alerts";
+}
+
 async function saveAlert(
   userId: string,
   petId: string,
-  kind: "report" | "nemesis" | "praise",
+  kind: AlertKind,
   title: string,
   body: string
 ) {
   const supabase = await createClient();
+  const safeTitle = maskProfanity(title);
+  const safeBody = maskProfanity(body);
   await supabase.from("alerts").insert({
     user_id: userId,
     pet_id: petId,
     kind,
-    title: maskProfanity(title),
-    body: maskProfanity(body),
+    title: safeTitle,
+    body: safeBody,
   });
+
+  await sendNotification({
+    userId,
+    category: categoryForKind(kind),
+    subject: safeTitle,
+    body: safeBody,
+  });
+
   revalidatePath("/");
   revalidatePath(`/pets/${petId}`);
+  revalidatePath("/account");
 }
 
 export async function generateReportAction(formData: FormData) {
