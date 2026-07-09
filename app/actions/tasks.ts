@@ -55,6 +55,7 @@ export async function createTask(formData: FormData): Promise<FormState> {
   if (error) return { error: "Could not add task. Please try again." };
 
   revalidatePath("/");
+  revalidatePath("/account");
   revalidatePath("/pets");
   if (pet_id) revalidatePath(`/pets/${pet_id}`);
   return { error: null };
@@ -92,6 +93,7 @@ export async function completeTask(formData: FormData): Promise<void> {
   }
 
   revalidatePath("/");
+  revalidatePath("/account");
   revalidatePath("/pets");
   if (parsed.data.pet_id) revalidatePath(`/pets/${parsed.data.pet_id}`);
 }
@@ -106,6 +108,7 @@ export async function deleteTask(formData: FormData) {
   await supabase.from("tasks").delete().eq("id", parsed.data).eq("user_id", user.id);
 
   revalidatePath("/");
+  revalidatePath("/account");
   revalidatePath("/pets");
   const petId = String(formData.get("pet_id") ?? "");
   if (petId) revalidatePath(`/pets/${petId}`);

@@ -3,10 +3,15 @@ import type { Badge } from "@/lib/types";
 interface Props {
   catalog: Badge[];
   earnedKeys: Set<string>;
+  species?: string | null;
 }
 
-export function BadgeShelf({ catalog, earnedKeys }: Props) {
-  if (catalog.length === 0) {
+export function BadgeShelf({ catalog, earnedKeys, species }: Props) {
+  const visibleCatalog = species
+    ? catalog.filter((badge) => !badge.species || badge.species === species)
+    : catalog.filter((badge) => !badge.species);
+
+  if (visibleCatalog.length === 0) {
     return (
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
         No badges in the catalog yet. Run the migration to seed them.
@@ -16,7 +21,7 @@ export function BadgeShelf({ catalog, earnedKeys }: Props) {
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-      {catalog.map((badge) => {
+      {visibleCatalog.map((badge) => {
         const earned = earnedKeys.has(badge.key);
         return (
           <div

@@ -27,6 +27,8 @@ export const petSchema = z.object({
     .trim()
     .min(1, "Give your pet a personality.")
     .max(600, "Personality is too long (600 max)."),
+  nemesis: z.string().trim().max(500, "Nemesis notes are too long (500 max).").optional().or(z.literal("")),
+  quirks: z.string().trim().max(500, "Quirks are too long (500 max).").optional().or(z.literal("")),
 });
 
 export const taskSchema = z.object({

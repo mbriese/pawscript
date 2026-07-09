@@ -9,9 +9,15 @@ export type TaskCategory =
   | "hydration"
   | "exercise"
   | "movement"
+  | "household"
+  | "wellness"
+  | "work"
+  | "family"
+  | "adventure"
   | "other";
 
-export type AlertKind = "nemesis" | "report" | "praise";
+export type AlertKind = "nemesis" | "report" | "praise" | "event";
+export type EventSeverity = "info" | "notice" | "alert" | "emergency";
 
 export interface Pet {
   id: string;
@@ -21,6 +27,8 @@ export interface Pet {
   breed: string | null;
   avatar_emoji: string;
   personality: string;
+  nemesis: string | null;
+  quirks: string | null;
   created_at: string;
 }
 
@@ -50,6 +58,7 @@ export interface Alert {
   pet_id: string | null;
   user_id: string;
   kind: AlertKind;
+  severity: EventSeverity | null;
   title: string;
   body: string;
   created_at: string;
@@ -61,6 +70,7 @@ export interface Badge {
   description: string;
   emoji: string;
   criteria: string;
+  species: string | null;
 }
 
 export interface UserBadge {
@@ -171,6 +181,11 @@ export const TASK_CATEGORIES: TaskCategory[] = [
   "hydration",
   "exercise",
   "movement",
+  "household",
+  "wellness",
+  "work",
+  "family",
+  "adventure",
   "other",
 ];
 
@@ -186,5 +201,10 @@ export const CATEGORY_META: Record<
   hydration: { label: "Hydration", emoji: "💧" },
   exercise: { label: "Exercise", emoji: "🏃" },
   movement: { label: "Movement", emoji: "🚶" },
+  household: { label: "Household", emoji: "🏠" },
+  wellness: { label: "Wellness", emoji: "🌿" },
+  work: { label: "Work", emoji: "💼" },
+  family: { label: "Family", emoji: "👪" },
+  adventure: { label: "Adventure", emoji: "🗺️" },
   other: { label: "Other", emoji: "📋" },
 };

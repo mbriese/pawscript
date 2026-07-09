@@ -1,6 +1,7 @@
 import {
   generateNemesisAction,
   generatePraiseAction,
+  generateRandomEventAction,
   generateReportAction,
 } from "@/app/actions/ai";
 import { SubmitButton } from "./submit-button";
@@ -31,6 +32,16 @@ export function PetActions({
           className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500"
         >
           🐿️ New Dispatch
+        </SubmitButton>
+      </form>
+
+      <form action={generateRandomEventAction}>
+        <input type="hidden" name="pet_id" value={petId} />
+        <SubmitButton
+          pendingLabel="Rolling…"
+          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
+        >
+          🎲 Random Event
         </SubmitButton>
       </form>
 

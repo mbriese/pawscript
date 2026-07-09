@@ -5,7 +5,9 @@
 export const SPECIES = [
   "dog",
   "cat",
+  "bird",
   "fish",
+  "rabbit",
   "snake",
   "mouse",
   "rat",
@@ -13,6 +15,7 @@ export const SPECIES = [
   "highland cow",
   "cow",
   "horse",
+  "virtual pet",
   "chicken",
   "duck",
 ] as const;
@@ -22,7 +25,9 @@ export type Species = (typeof SPECIES)[number];
 export const SPECIES_EMOJI: Record<Species, string> = {
   dog: "🐕",
   cat: "🐈",
+  bird: "🐦",
   fish: "🐟",
+  rabbit: "🐰",
   snake: "🐍",
   mouse: "🐭",
   rat: "🐀",
@@ -30,6 +35,7 @@ export const SPECIES_EMOJI: Record<Species, string> = {
   "highland cow": "🐮",
   cow: "🐄",
   horse: "🐴",
+  "virtual pet": "🐉",
   chicken: "🐔",
   duck: "🦆",
 };

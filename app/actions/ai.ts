@@ -6,13 +6,19 @@ import { requireUser } from "@/lib/auth";
 import {
   generateNemesis,
   generatePraise,
+  generateRandomEvent,
   generateReport,
   type PetContext,
 } from "@/lib/ai";
 import { evaluateBadges } from "@/lib/badges";
 import { maskProfanity } from "@/lib/moderation";
 import { sendNotification } from "@/lib/notifications";
-import type { AlertKind, NotificationCategory, Pet } from "@/lib/types";
+import type {
+  AlertKind,
+  EventSeverity,
+  NotificationCategory,
+  Pet,
+} from "@/lib/types";
 
 async function loadPet(petId: string): Promise<Pet | null> {
   const supabase = await createClient();
@@ -24,13 +30,13 @@ async function loadPet(petId: string): Promise<Pet | null> {
   return (data as Pet | null) ?? null;
 }
 
-async function buildContext(userId: string): Promise<PetContext> {
+async function buildContext(userId: string, petId: string): Promise<PetContext> {
   const supabase = await createClient();
   const nowIso = new Date().toISOString();
 
   const { data: overdue } = await supabase
     .from("tasks")
-    .select("title")
+    .select("title, subject, pet_id")
     .eq("user_id", userId)
     .lte("next_due_at", nowIso)
     .order("next_due_at", { ascending: true })
@@ -38,24 +44,41 @@ async function buildContext(userId: string): Promise<PetContext> {
 
   const { data: recent } = await supabase
     .from("task_logs")
-    .select("done_at, tasks(title)")
+    .select("done_at, tasks(title, subject, pet_id)")
     .eq("user_id", userId)
     .order("done_at", { ascending: false })
-    .limit(5);
+    .limit(20);
 
   const { streakDays } = await evaluateBadges(supabase, userId);
 
+  const isRelevantTask = (task: {
+    subject?: string | null;
+    pet_id?: string | null;
+  }) => task.subject === "human" || task.pet_id === petId;
+
   const recentDoneTitles = (recent ?? [])
     .map((r) => {
-      const t = (r as { tasks: { title: string } | { title: string }[] | null })
-        .tasks;
+      const t = (
+        r as {
+          tasks:
+            | { title: string; subject: string | null; pet_id: string | null }
+            | { title: string; subject: string | null; pet_id: string | null }[]
+            | null;
+        }
+      ).tasks;
       if (!t) return null;
-      return Array.isArray(t) ? t[0]?.title ?? null : t.title;
+      const task = Array.isArray(t) ? t[0] : t;
+      if (!task || !isRelevantTask(task)) return null;
+      return task.title;
     })
     .filter((x): x is string => Boolean(x));
 
   return {
-    overdueTitles: (overdue ?? []).map((t) => t.title as string),
+    overdueTitles: (overdue ?? [])
+      .filter((t) =>
+        isRelevantTask(t as { subject?: string | null; pet_id?: string | null })
+      )
+      .map((t) => t.title as string),
     recentDoneTitles,
     streakDays,
   };
@@ -71,7 +94,8 @@ async function saveAlert(
   petId: string,
   kind: AlertKind,
   title: string,
-  body: string
+  body: string,
+  severity?: EventSeverity
 ) {
   const supabase = await createClient();
   const safeTitle = maskProfanity(title);
@@ -80,6 +104,7 @@ async function saveAlert(
     user_id: userId,
     pet_id: petId,
     kind,
+    severity: severity ?? null,
     title: safeTitle,
     body: safeBody,
   });
@@ -102,7 +127,7 @@ export async function generateReportAction(formData: FormData) {
   const pet = petId ? await loadPet(petId) : null;
   if (!pet) return;
 
-  const ctx = await buildContext(user.id);
+  const ctx = await buildContext(user.id, pet.id);
   const alert = await generateReport(pet, ctx);
   await saveAlert(user.id, pet.id, "report", alert.title, alert.body);
 }
@@ -123,7 +148,24 @@ export async function generatePraiseAction(formData: FormData) {
   const pet = petId ? await loadPet(petId) : null;
   if (!pet) return;
 
-  const ctx = await buildContext(user.id);
+  const ctx = await buildContext(user.id, pet.id);
   const alert = await generatePraise(pet, ctx);
   await saveAlert(user.id, pet.id, "praise", alert.title, alert.body);
+}
+
+export async function generateRandomEventAction(formData: FormData) {
+  const user = await requireUser();
+  const petId = String(formData.get("pet_id") ?? "");
+  const pet = petId ? await loadPet(petId) : null;
+  if (!pet) return;
+
+  const alert = await generateRandomEvent(pet);
+  await saveAlert(
+    user.id,
+    pet.id,
+    "event",
+    alert.title,
+    alert.body,
+    alert.severity
+  );
 }

@@ -7,6 +7,7 @@ import { requireUser } from "@/lib/auth";
 import { firstIssue, idSchema, petSchema, type FormState } from "@/lib/validation";
 import { isProfane } from "@/lib/moderation";
 import { logModerationFlag } from "@/lib/admin";
+import { PET_PRESETS } from "@/lib/pet-presets";
 
 export async function createPet(
   _prevState: FormState,
@@ -21,15 +22,20 @@ export async function createPet(
     breed: formData.get("breed"),
     avatar_emoji: formData.get("avatar_emoji"),
     personality: formData.get("personality"),
+    nemesis: formData.get("nemesis"),
+    quirks: formData.get("quirks"),
   });
   if (!parsed.success) return { error: firstIssue(parsed.error) };
 
-  const { name, species, breed, avatar_emoji, personality } = parsed.data;
+  const { name, species, breed, avatar_emoji, personality, nemesis, quirks } =
+    parsed.data;
 
   const profanityChecks: { field: string; label: string; value: string | null | undefined }[] = [
     { field: "pet_name", label: "name", value: name },
     { field: "pet_breed", label: "breed", value: breed },
     { field: "pet_personality", label: "personality", value: personality },
+    { field: "pet_nemesis", label: "nemesis", value: nemesis },
+    { field: "pet_quirks", label: "quirks", value: quirks },
   ];
   for (const check of profanityChecks) {
     if (isProfane(check.value)) {
@@ -52,13 +58,33 @@ export async function createPet(
       breed: breed || null,
       avatar_emoji,
       personality,
+      nemesis: nemesis || null,
+      quirks: quirks || null,
     })
     .select("id")
     .single();
 
   if (error || !data) return { error: "Could not create pet. Please try again." };
 
+  const presetName = String(formData.get("preset_name") ?? "");
+  const preset = PET_PRESETS.find((p) => p.name === presetName);
+  if (preset?.defaultTasks?.length) {
+    const nowIso = new Date().toISOString();
+    await supabase.from("tasks").insert(
+      preset.defaultTasks.map((task) => ({
+        user_id: user.id,
+        pet_id: task.subject === "pet" ? data.id : null,
+        title: task.title,
+        subject: task.subject,
+        category: task.category,
+        frequency: task.frequency,
+        next_due_at: nowIso,
+      }))
+    );
+  }
+
   revalidatePath("/pets");
+  revalidatePath("/account");
   revalidatePath("/");
   redirect(`/pets/${data.id}`);
 }
@@ -100,6 +126,10 @@ export async function loadDemoPet() {
       avatar_emoji: "🐱",
       personality:
         "A dry, bureaucratic house cat who narrates domestic life like a mid-level government auditor. Speaks in clipped official memos and is deeply suspicious of squirrels.",
+      nemesis:
+        "Squirrels, mice, mirror cats, unauthorized birds, and any food bowl below acceptable capacity.",
+      quirks:
+        "Files reports in clipped official language, audits human compliance, and treats domestic routines as government operations.",
     })
     .select("id")
     .single();

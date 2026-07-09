@@ -12,7 +12,7 @@ export default async function NewPetPage() {
   return (
     <>
       <SiteHeader email={user.email} />
-      <main className="mx-auto w-full max-w-lg flex-1 px-4 py-8">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <Link
           href="/pets"
           className="text-sm text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-100"
@@ -20,7 +20,7 @@ export default async function NewPetPage() {
           ← Back to pets
         </Link>
         <h1 className="mt-3 mb-6 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-          Add a pet
+          Select a Pet
         </h1>
         <NewPetForm />
       </main>

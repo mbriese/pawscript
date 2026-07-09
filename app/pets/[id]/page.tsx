@@ -97,6 +97,26 @@ export default async function PetDetailPage({
                 <p className="mt-2 max-w-xl text-sm text-zinc-600 dark:text-zinc-300">
                   {pet.personality}
                 </p>
+                {pet.nemesis || pet.quirks ? (
+                  <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+                    {pet.nemesis ? (
+                      <div className="rounded-xl bg-amber-50 p-3 text-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                        <h2 className="text-xs font-semibold uppercase tracking-wide">
+                          Nemesis / worries
+                        </h2>
+                        <p className="mt-1">{pet.nemesis}</p>
+                      </div>
+                    ) : null}
+                    {pet.quirks ? (
+                      <div className="rounded-xl bg-violet-50 p-3 text-violet-900 dark:bg-violet-950/30 dark:text-violet-100">
+                        <h2 className="text-xs font-semibold uppercase tracking-wide">
+                          Quirks
+                        </h2>
+                        <p className="mt-1">{pet.quirks}</p>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
               </div>
             </div>
             <form action={deletePet}>
@@ -121,7 +141,12 @@ export default async function PetDetailPage({
                 Tasks
               </h2>
               <div className="mb-4 rounded-2xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-                <AddTaskForm pets={[pet]} defaultPetId={pet.id} lockPet />
+                <AddTaskForm
+                  pets={[pet]}
+                  defaultPetId={pet.id}
+                  defaultSpecies={pet.species}
+                  lockPet
+                />
               </div>
               {tasks.length === 0 ? (
                 <p className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
@@ -150,7 +175,7 @@ export default async function PetDetailPage({
                     const cat = log.tasks?.category ?? "other";
                     return (
                       <li key={log.id} className="mb-4 ml-4">
-                        <span className="absolute -left-[9px] flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] text-white">
+                        <span className="absolute left-[-9px] flex h-4 w-4 items-center justify-center rounded-full bg-emerald-500 text-[8px] text-white">
                           ✓
                         </span>
                         <div className="flex items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200">
@@ -187,7 +212,11 @@ export default async function PetDetailPage({
               <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
                 Badges
               </h2>
-              <BadgeShelf catalog={catalog} earnedKeys={earnedKeys} />
+                <BadgeShelf
+                  catalog={catalog}
+                  earnedKeys={earnedKeys}
+                  species={pet.species}
+                />
             </section>
           </aside>
         </div>

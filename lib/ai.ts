@@ -1,6 +1,7 @@
 import "server-only";
 import OpenAI from "openai";
-import type { AlertKind, Pet } from "./types";
+import { pickRandomEvent, severityLabel, type RandomEvent } from "./random-events";
+import type { AlertKind, EventSeverity, Pet } from "./types";
 
 const MODEL = "gpt-4o-mini";
 
@@ -14,6 +15,7 @@ export interface GeneratedAlert {
   kind: AlertKind;
   title: string;
   body: string;
+  severity?: EventSeverity;
 }
 
 function getClient(): OpenAI | null {
@@ -26,10 +28,14 @@ function voiceSystemPrompt(pet: Pet): string {
   return [
     `You are ${pet.name}, a ${pet.breed ? `${pet.breed} ` : ""}${pet.species}.`,
     `Personality and voice: ${pet.personality}`,
+    pet.nemesis ? `Recurring nemesis/worries: ${pet.nemesis}` : "",
+    pet.quirks ? `Quirks and habits: ${pet.quirks}` : "",
     "You are writing a short in-character dispatch to your human.",
     "Stay fully in character. Be witty and concise. Never break character or mention that you are an AI.",
     "Do not use markdown, headings, or bullet points. Return 1-3 short sentences of plain prose.",
-  ].join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 const NEMESIS_SUBJECTS = [
@@ -65,11 +71,18 @@ function fallbackReport(pet: Pet, ctx: PetContext): GeneratedAlert {
 }
 
 function fallbackNemesis(pet: Pet): GeneratedAlert {
-  const subject = pick(NEMESIS_SUBJECTS);
+  const subject = pick(
+    pet.nemesis
+      ? pet.nemesis
+          .split(/[,.;\n]/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : NEMESIS_SUBJECTS
+  );
   return {
     kind: "nemesis",
     title: "Nemesis Dispatch",
-    body: `Be advised: ${subject} has been sighted. I have logged the incident and maintained visual contact for the appropriate duration. The situation remains under my control. — ${pet.name}`,
+    body: `Be advised: ${subject} has been sighted. I have logged the incident and maintained visual contact for the appropriate duration. ${pet.quirks ? `Relevant behavioral note: ${pet.quirks}` : "The situation remains under my control."} — ${pet.name}`,
   };
 }
 
@@ -78,6 +91,34 @@ function fallbackPraise(pet: Pet, ctx: PetContext): GeneratedAlert {
     kind: "praise",
     title: "Commendation on File",
     body: `Your ${ctx.streakDays}-day streak of compliance has been noted and, against my better judgment, approved. Continue as you were. — ${pet.name}`,
+  };
+}
+
+function fallbackEvent(pet: Pet, event: RandomEvent): GeneratedAlert {
+  if (pet.name === "Dug" && event.title.toLowerCase().includes("squirrel")) {
+    return {
+      kind: "event",
+      severity: event.severity,
+      title: event.title,
+      body: "AMAZING NEWS! SQUIRREL! It was right there! I investigated thoroughly! I would like to investigate again immediately.",
+    };
+  }
+
+  if (pet.name === "Alpha") {
+    return {
+      kind: "event",
+      severity: event.severity,
+      title: event.title,
+      body: `${severityLabel(event.severity)}: ${event.title}. Situation logged under ${event.category}. Countermeasures initiated and vigilance remains mandatory.`,
+    };
+  }
+
+  const quirk = pet.quirks ? ` ${pet.quirks}` : "";
+  return {
+    kind: "event",
+    severity: event.severity,
+    title: event.title,
+    body: `${severityLabel(event.severity)}: ${event.title}. ${pet.name} has filed this under ${event.category}.${quirk}`,
   };
 }
 
@@ -128,9 +169,11 @@ export async function generateReport(
 }
 
 export async function generateNemesis(pet: Pet): Promise<GeneratedAlert> {
-  const prompt = `Write a short surveillance dispatch reporting a sighting of ${pick(
-    NEMESIS_SUBJECTS
-  )}. Treat it as a serious security matter.`;
+  const prompt = pet.nemesis
+    ? `Write a short surveillance dispatch about one of this pet's recurring nemesis or worries: ${pet.nemesis}. Include one relevant quirk if useful: ${pet.quirks ?? "none"}. Treat it as a serious security matter.`
+    : `Write a short surveillance dispatch reporting a sighting of ${pick(
+        NEMESIS_SUBJECTS
+      )}. Treat it as a serious security matter.`;
   return generate(pet, "nemesis", prompt, fallbackNemesis(pet));
 }
 
@@ -140,4 +183,19 @@ export async function generatePraise(
 ): Promise<GeneratedAlert> {
   const prompt = `The human has kept a ${ctx.streakDays}-day streak of completing care tasks. Grudgingly praise them, in character.`;
   return generate(pet, "praise", prompt, fallbackPraise(pet, ctx));
+}
+
+export async function generateRandomEvent(pet: Pet): Promise<GeneratedAlert> {
+  const event = pickRandomEvent(pet);
+  const fallback = fallbackEvent(pet, event);
+  const prompt = [
+    `A random pet event occurred: ${event.title}.`,
+    `Event category: ${event.category}.`,
+    `Severity: ${event.severity}.`,
+    "Write the pet's in-character reaction/report.",
+    "Keep it short, funny, and specific to the pet personality.",
+  ].join(" ");
+
+  const generated = await generate(pet, "event", prompt, fallback);
+  return { ...generated, title: event.title, severity: event.severity };
 }

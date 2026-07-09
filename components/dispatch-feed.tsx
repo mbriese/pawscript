@@ -1,9 +1,10 @@
 import { formatDateTime } from "@/lib/scheduling";
-import type { AlertKind } from "@/lib/types";
+import type { AlertKind, EventSeverity } from "@/lib/types";
 
 export interface AlertRow {
   id: string;
   kind: AlertKind;
+  severity?: EventSeverity | null;
   title: string;
   body: string;
   created_at: string;
@@ -24,6 +25,17 @@ const KIND_STYLES: Record<AlertKind, { emoji: string; badge: string }> = {
     badge:
       "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300",
   },
+  event: {
+    emoji: "🎲",
+    badge: "bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-300",
+  },
+};
+
+const SEVERITY_STYLES: Record<EventSeverity, string> = {
+  info: "bg-sky-100 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300",
+  notice: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300",
+  alert: "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300",
+  emergency: "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-300",
 };
 
 export function DispatchFeed({ alerts }: { alerts: AlertRow[] }) {
@@ -56,6 +68,13 @@ export function DispatchFeed({ alerts }: { alerts: AlertRow[] }) {
                 >
                   {a.kind}
                 </span>
+                {a.severity ? (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${SEVERITY_STYLES[a.severity]}`}
+                  >
+                    {a.severity}
+                  </span>
+                ) : null}
               </div>
               <time className="shrink-0 text-xs text-zinc-400">
                 {formatDateTime(a.created_at)}
