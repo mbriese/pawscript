@@ -84,7 +84,7 @@ export default async function AdminPage() {
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">
         <div className="mb-6 flex items-center gap-3">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Admin console</h1>
-          <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">
+          <span className="rounded-full bg-violet-100 px-2.5 py-0.5 text-xs font-semibold text-violet-800 dark:bg-violet-900/40 dark:text-violet-300">
             admin
           </span>
         </div>

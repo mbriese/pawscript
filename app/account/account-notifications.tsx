@@ -37,7 +37,7 @@ const CHANNEL_OPTIONS: { value: NotificationChannel; label: string }[] = [
 ];
 
 const inputClass =
-  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
+  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
 
 function Message({ state }: { state: FormState }) {
   if (!state) return null;
@@ -68,7 +68,7 @@ function Btn({
   const { pending } = useFormStatus();
   const base =
     variant === "primary"
-      ? "bg-amber-500 text-white hover:bg-amber-600"
+      ? "bg-violet-500 text-white hover:bg-violet-600"
       : "border border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800";
   return (
     <button
@@ -142,7 +142,7 @@ export function AccountNotifications({ settings }: { settings: NotificationSetti
               ✓ verified
             </span>
           ) : settings.phone ? (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-950/50 dark:text-amber-300">
+            <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-950/50 dark:text-violet-300">
               unverified
             </span>
           ) : null}

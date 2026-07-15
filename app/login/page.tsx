@@ -15,7 +15,7 @@ export default async function LoginPage() {
   const configured = isSupabaseConfigured();
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-gradient-to-br from-amber-50 via-white to-rose-50 px-4 py-16 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main className="flex flex-1 items-center justify-center bg-linear-to-br from-violet-50 via-white to-fuchsia-50 px-4 py-16 dark:from-zinc-950 dark:via-zinc-900 dark:to-violet-950">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <div className="mb-3 text-5xl">🐾</div>
@@ -31,7 +31,7 @@ export default async function LoginPage() {
           {configured ? (
             <LoginForm />
           ) : (
-            <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+            <div className="rounded-lg bg-violet-50 px-4 py-3 text-sm text-violet-800 dark:bg-violet-950/40 dark:text-violet-200">
               Supabase isn&apos;t configured yet. Add{" "}
               <code className="font-mono">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
               <code className="font-mono">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}

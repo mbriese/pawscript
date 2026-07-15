@@ -29,7 +29,7 @@ export async function SiteHeader({ email }: { email?: string | null }) {
           {showAdmin ? (
             <Link
               href="/admin"
-              className="rounded-lg px-3 py-2 font-semibold text-amber-600 transition hover:bg-amber-50 hover:text-amber-700 dark:text-amber-400 dark:hover:bg-amber-950/40"
+              className="rounded-lg px-3 py-2 font-semibold text-violet-600 transition hover:bg-violet-50 hover:text-violet-700 dark:text-violet-400 dark:hover:bg-violet-950/40"
             >
               Admin
             </Link>

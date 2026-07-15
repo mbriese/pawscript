@@ -5,6 +5,7 @@ import { AddTaskForm } from "@/components/add-task-form";
 import { TaskItem } from "@/components/task-item";
 import { AccountMfa } from "./account-mfa";
 import { AccountNotifications, type NotificationSettings } from "./account-notifications";
+import { isOverdue } from "@/lib/scheduling";
 import type { NotificationChannel, NotificationLog, Pet, TaskWithPet } from "@/lib/types";
 
 export const metadata = { title: "Account · PawScript" };
@@ -58,6 +59,10 @@ export default async function AccountPage() {
   const tasks = (tasksRes.data ?? []) as TaskWithPet[];
   const petTasks = tasks.filter((t) => t.subject === "pet");
   const humanTasks = tasks.filter((t) => t.subject === "human");
+  const currentTasks = tasks.filter((task) => !isOverdue(task.next_due_at)).length;
+  const progress = tasks.length
+    ? Math.round((currentTasks / tasks.length) * 100)
+    : 0;
 
   const notificationSettings: NotificationSettings = {
     reports: (prefs?.reports as NotificationChannel) ?? "off",
@@ -90,28 +95,100 @@ export default async function AccountPage() {
           </p>
         </section>
 
-        <section className="mb-6 rounded-2xl border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
-          <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-                Task dashboard
-              </h2>
-              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                Create care tasks for pets and habit tasks for humans from one place.
-              </p>
+        <section className="mb-6 overflow-hidden rounded-3xl border border-violet-100 bg-white shadow-sm dark:border-violet-950/60 dark:bg-zinc-900">
+          <div className="flex flex-wrap items-center justify-between gap-4 bg-linear-to-r from-violet-600 via-purple-600 to-fuchsia-500 px-6 py-4 text-white">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-2xl shadow-inner">
+                🐾
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-violet-100">
+                  PawScript
+                </p>
+                <h2 className="text-2xl font-black uppercase tracking-tight">
+                  Common Task Pad
+                </h2>
+                <p className="text-xs text-violet-100">
+                  Shared human tasks, pet missions, and household operations.
+                </p>
+              </div>
             </div>
-            <div className="rounded-full bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
-              {tasks.length} active
+            <div className="rounded-2xl bg-white/15 px-4 py-2 text-right text-sm shadow-inner">
+              <div className="font-semibold">{tasks.length} active tasks</div>
+              <div className="text-xs text-violet-100">{progress}% current</div>
             </div>
           </div>
 
-          <div className="mb-6 rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
-            <AddTaskForm pets={pets} petSpecies={petSpecies} />
-          </div>
+          <div className="grid gap-6 p-5 lg:grid-cols-[1fr_18rem]">
+            <div className="flex flex-col gap-5">
+              <TaskList
+                title="Human tasks"
+                emoji="🧍"
+                tasks={humanTasks}
+                accent="violet"
+              />
+              <TaskList
+                title="Pet missions"
+                emoji="🐾"
+                tasks={petTasks}
+                showPet
+                accent="fuchsia"
+              />
+            </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <TaskList title="Human tasks" tasks={humanTasks} />
-            <TaskList title="Pet tasks" tasks={petTasks} showPet />
+            <aside className="flex flex-col gap-4">
+              <section className="rounded-2xl border border-violet-100 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-violet-900 dark:text-violet-100">
+                  Filter tasks
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-zinc-700 shadow-sm dark:bg-zinc-900 dark:text-zinc-200">
+                    <span>All tasks</span>
+                    <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-900/50 dark:text-violet-200">
+                      {tasks.length}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-zinc-700 shadow-sm dark:bg-zinc-900 dark:text-zinc-200">
+                    <span>Human tasks</span>
+                    <span className="rounded-full bg-violet-100 px-2 py-0.5 text-xs font-semibold text-violet-700 dark:bg-violet-900/50 dark:text-violet-200">
+                      {humanTasks.length}
+                    </span>
+                  </div>
+                  {pets.map((pet) => (
+                    <div
+                      key={pet.id}
+                      className="flex items-center justify-between rounded-xl bg-white px-3 py-2 text-sm text-zinc-700 shadow-sm dark:bg-zinc-900 dark:text-zinc-200"
+                    >
+                      <span>
+                        {pet.avatar_emoji} {pet.name}
+                      </span>
+                      <span className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs font-semibold text-fuchsia-700 dark:bg-fuchsia-900/50 dark:text-fuchsia-200">
+                        {petTasks.filter((task) => task.pet_id === pet.id).length}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-violet-100 bg-white p-4 text-center shadow-sm dark:border-violet-900/60 dark:bg-zinc-900">
+                <h3 className="text-sm font-bold uppercase tracking-wide text-zinc-600 dark:text-zinc-300">
+                  Today&apos;s progress
+                </h3>
+                <div className="mx-auto mt-3 flex h-28 w-28 items-center justify-center rounded-full border-10 border-violet-200 bg-violet-50 text-2xl font-black text-violet-700 dark:border-violet-900/70 dark:bg-violet-950/30 dark:text-violet-200">
+                  {progress}%
+                </div>
+                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  {currentTasks} of {tasks.length} tasks are not overdue.
+                </p>
+              </section>
+
+              <section className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950/40">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-zinc-700 dark:text-zinc-200">
+                  Add new task
+                </h3>
+                <AddTaskForm pets={pets} petSpecies={petSpecies} />
+              </section>
+            </aside>
           </div>
         </section>
 
@@ -156,18 +233,31 @@ export default async function AccountPage() {
 
 function TaskList({
   title,
+  emoji,
   tasks,
   showPet = false,
+  accent,
 }: {
   title: string;
+  emoji: string;
   tasks: TaskWithPet[];
   showPet?: boolean;
+  accent: "violet" | "fuchsia";
 }) {
+  const badgeClass =
+    accent === "violet"
+      ? "bg-violet-100 text-violet-700 dark:bg-violet-950/50 dark:text-violet-200"
+      : "bg-fuchsia-100 text-fuchsia-700 dark:bg-fuchsia-950/50 dark:text-fuchsia-200";
+
   return (
-    <section>
-      <h3 className="mb-3 flex items-center justify-between text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        <span>{title}</span>
-        <span>{tasks.length}</span>
+    <section className="rounded-2xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-950/30">
+      <h3 className="mb-3 flex items-center justify-between text-sm font-black uppercase tracking-wide text-zinc-700 dark:text-zinc-200">
+        <span>
+          <span aria-hidden>{emoji}</span> {title}
+        </span>
+        <span className={`rounded-full px-2 py-0.5 text-xs ${badgeClass}`}>
+          {tasks.length}
+        </span>
       </h3>
       {tasks.length === 0 ? (
         <p className="rounded-xl border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">

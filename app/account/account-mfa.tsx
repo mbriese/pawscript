@@ -23,7 +23,7 @@ function VerifyButton() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-600 disabled:opacity-60"
+      className="rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:opacity-60"
     >
       {pending ? "Verifying…" : "Verify & enable"}
     </button>
@@ -126,7 +126,7 @@ export function AccountMfa({ verifiedFactors }: { verifiedFactors: Factor[] }) {
           maxLength={6}
           required
           placeholder="123456"
-          className="w-32 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-center tracking-[0.3em] text-zinc-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+          className="w-32 rounded-lg border border-zinc-300 bg-white px-3 py-2 text-center tracking-[0.3em] text-zinc-900 outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
         />
         <VerifyButton />
       </form>

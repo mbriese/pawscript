@@ -100,7 +100,7 @@ export default async function PetDetailPage({
                 {pet.nemesis || pet.quirks ? (
                   <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
                     {pet.nemesis ? (
-                      <div className="rounded-xl bg-amber-50 p-3 text-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                      <div className="rounded-xl bg-violet-50 p-3 text-violet-900 dark:bg-violet-950/30 dark:text-violet-100">
                         <h2 className="text-xs font-semibold uppercase tracking-wide">
                           Nemesis / worries
                         </h2>

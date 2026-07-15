@@ -17,7 +17,7 @@ export function TaskItem({
     <div
       className={`flex items-center gap-3 rounded-xl border p-3 transition ${
         overdue
-          ? "border-amber-300 bg-amber-50/70 dark:border-amber-800/60 dark:bg-amber-950/20"
+          ? "border-violet-300 bg-violet-50/70 dark:border-violet-800/60 dark:bg-violet-950/20"
           : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
       }`}
     >
@@ -58,7 +58,7 @@ export function TaskItem({
           ) : null}
           <span>{frequencyLabel(task.frequency)}</span>
           <span aria-hidden>·</span>
-          <span className={overdue ? "font-semibold text-amber-600 dark:text-amber-400" : ""}>
+          <span className={overdue ? "font-semibold text-violet-600 dark:text-violet-400" : ""}>
             {overdue ? "overdue" : `due ${formatRelative(task.next_due_at)}`}
           </span>
         </div>

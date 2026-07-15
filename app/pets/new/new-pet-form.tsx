@@ -24,7 +24,7 @@ const EMOJI_CHOICES = Array.from(
 );
 
 const inputClass =
-  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
+  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
 
 export function NewPetForm() {
   const [state, action] = useActionState<FormState, FormData>(createPet, null);
@@ -69,7 +69,7 @@ export function NewPetForm() {
   return (
     <form action={action} className="flex flex-col gap-5">
       <input type="hidden" name="preset_name" value={selectedPresetName} />
-      <section className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 dark:border-amber-900/60 dark:bg-amber-950/20">
+      <section className="rounded-2xl border border-violet-200 bg-violet-50/60 p-4 dark:border-violet-900/60 dark:bg-violet-950/20">
         <div className="mb-3">
           <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
             Select a Pet
@@ -84,9 +84,9 @@ export function NewPetForm() {
               key={preset.name}
               type="button"
               onClick={() => selectPreset(preset)}
-              className={`rounded-2xl border bg-white p-4 text-left shadow-sm transition hover:border-amber-400 hover:shadow-md dark:bg-zinc-900 ${
+              className={`rounded-2xl border bg-white p-4 text-left shadow-sm transition hover:border-violet-400 hover:shadow-md dark:bg-zinc-900 ${
                 name === preset.name
-                  ? "border-amber-500 ring-2 ring-amber-200 dark:ring-amber-800/60"
+                  ? "border-violet-500 ring-2 ring-violet-200 dark:ring-violet-800/60"
                   : "border-zinc-200 dark:border-zinc-800"
               }`}
             >
@@ -114,7 +114,7 @@ export function NewPetForm() {
                 {preset.personality}
               </p>
               {preset.quote ? (
-                <p className="mt-2 text-xs font-medium italic text-amber-700 dark:text-amber-300">
+                <p className="mt-2 text-xs font-medium italic text-violet-700 dark:text-violet-300">
                   &ldquo;{preset.quote}&rdquo;
                 </p>
               ) : null}
@@ -192,7 +192,7 @@ export function NewPetForm() {
                 onChange={() => setEmoji(choice)}
                 className="peer sr-only"
               />
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-300 text-2xl transition peer-checked:border-amber-500 peer-checked:bg-amber-50 dark:border-zinc-700 dark:peer-checked:bg-amber-950/40">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-300 text-2xl transition peer-checked:border-violet-500 peer-checked:bg-violet-50 dark:border-zinc-700 dark:peer-checked:bg-violet-950/40">
                 {choice}
               </span>
             </label>
@@ -264,7 +264,7 @@ export function NewPetForm() {
 
       <SubmitButton
         pendingLabel="Creating…"
-        className="rounded-xl bg-amber-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-amber-600"
+        className="rounded-xl bg-violet-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-violet-600"
       >
         Create pet
       </SubmitButton>

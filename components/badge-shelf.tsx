@@ -28,7 +28,7 @@ export function BadgeShelf({ catalog, earnedKeys, species }: Props) {
             key={badge.key}
             className={`rounded-xl border p-3 text-center transition ${
               earned
-                ? "border-amber-300 bg-amber-50 dark:border-amber-700/60 dark:bg-amber-950/30"
+                ? "border-violet-300 bg-violet-50 dark:border-violet-700/60 dark:bg-violet-950/30"
                 : "border-zinc-200 bg-zinc-50 opacity-60 dark:border-zinc-800 dark:bg-zinc-900"
             }`}
             title={badge.description}

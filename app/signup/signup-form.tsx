@@ -7,7 +7,7 @@ import { signUpWithPassword } from "@/app/login/actions";
 import type { FormState } from "@/lib/validation";
 
 const inputClass =
-  "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
+  "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
 
 const RULES: { label: string; test: (v: string) => boolean }[] = [
   { label: "At least 12 characters", test: (v) => v.length >= 12 },
@@ -23,7 +23,7 @@ function SubmitBtn({ disabled }: { disabled: boolean }) {
     <button
       type="submit"
       disabled={disabled || pending}
-      className="w-full rounded-xl bg-amber-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-full rounded-xl bg-violet-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? "Creating account…" : "Create account"}
     </button>
@@ -93,7 +93,7 @@ export function SignupForm() {
 
       <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-amber-600 hover:underline">
+        <Link href="/login" className="font-semibold text-violet-600 hover:underline">
           Sign in
         </Link>
       </p>

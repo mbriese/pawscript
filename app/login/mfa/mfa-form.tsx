@@ -11,7 +11,7 @@ function SubmitBtn() {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-xl bg-amber-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:opacity-60"
+      className="w-full rounded-xl bg-violet-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-violet-600 disabled:opacity-60"
     >
       {pending ? "Verifying…" : "Verify"}
     </button>
@@ -33,7 +33,7 @@ export function MfaForm() {
         maxLength={6}
         required
         placeholder="123456"
-        className="rounded-xl border border-zinc-300 bg-white px-4 py-3 text-center text-lg tracking-[0.5em] text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+        className="rounded-xl border border-zinc-300 bg-white px-4 py-3 text-center text-lg tracking-[0.5em] text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
       />
       <SubmitBtn />
       {state?.error ? (

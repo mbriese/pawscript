@@ -14,7 +14,7 @@ export interface AdminUser {
 }
 
 const inputClass =
-  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
+  "rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
 
 function StateMessage({ state }: { state: FormState }) {
   if (!state) return null;
@@ -39,7 +39,7 @@ function Pending({ children, pendingLabel }: { children: React.ReactNode; pendin
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="rounded-lg bg-violet-500 px-3 py-2 text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? pendingLabel : children}
     </button>
@@ -117,7 +117,7 @@ export function AdminUsers({ users }: { users: AdminUser[] }) {
                   <span
                     className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
                       u.role === "admin"
-                        ? "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                        ? "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300"
                         : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"
                     }`}
                   >

@@ -11,7 +11,7 @@ import {
 import type { FormState } from "@/lib/validation";
 
 const inputClass =
-  "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
+  "rounded-xl border border-zinc-300 bg-white px-4 py-3 text-zinc-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-200 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100";
 
 function StateMessage({ state }: { state: FormState }) {
   if (!state) return null;
@@ -42,7 +42,7 @@ function PrimaryButton({
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-xl bg-amber-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-full rounded-xl bg-violet-500 px-4 py-3 font-semibold text-white shadow-sm transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? pendingLabel : children}
     </button>
@@ -90,7 +90,7 @@ export function LoginForm() {
         <StateMessage state={pwState} />
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           No account?{" "}
-          <Link href="/signup" className="font-semibold text-amber-600 hover:underline">
+          <Link href="/signup" className="font-semibold text-violet-600 hover:underline">
             Create one
           </Link>
         </p>

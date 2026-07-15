@@ -20,7 +20,7 @@ export default async function MfaChallengePage() {
   }
 
   return (
-    <main className="flex flex-1 items-center justify-center bg-gradient-to-br from-amber-50 via-white to-rose-50 px-4 py-16 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <main className="flex flex-1 items-center justify-center bg-linear-to-br from-violet-50 via-white to-fuchsia-50 px-4 py-16 dark:from-zinc-950 dark:via-zinc-900 dark:to-violet-950">
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <div className="mb-3 text-5xl">🔐</div>
